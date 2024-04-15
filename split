@@ -1,0 +1,30 @@
+import org.apache.spark.sql.{SparkSession, DataFrame}
+import org.apache.spark.sql.functions._
+
+object Main extends App {
+  // Create SparkSession
+  val spark = SparkSession.builder()
+    .appName("DataFrameManipulation")
+    .master("local[*]")
+    .getOrCreate()
+
+  // Dummy data
+  val data = Seq(
+    ("USER Apple is great"),
+    ("USER Banana is tasty"),
+    ("Orange is healthy")
+  )
+
+  // Create DataFrame
+  val df = spark.createDataFrame(data).toDF("A")
+
+  // DataFrame Transformation
+  val dfWithSplit = df.withColumn("C", when(col("A").contains("USER Apple"), "USER Apple").otherwise(split(col("A"), " ").getItem(0)))
+                      .withColumn("D", when(col("A").contains("USER Apple"), substring_index(col("A"), "USER Apple ", -1)).otherwise(substring_index(col("A"), " ", -1)))
+
+  // Show result
+  dfWithSplit.show()
+
+  // Stop SparkSession
+  spark.stop()
+}
