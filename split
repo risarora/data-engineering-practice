@@ -28,3 +28,36 @@ object Main extends App {
   // Stop SparkSession
   spark.stop()
 }
+
+
+
+import org.apache.spark.sql.{SparkSession, DataFrame}
+import org.apache.spark.sql.functions._
+
+object Main extends App {
+  // Create SparkSession
+  val spark = SparkSession.builder()
+    .appName("DataFrameManipulation")
+    .master("local[*]")
+    .getOrCreate()
+
+  // Dummy data
+  val data = Seq(
+    ("USER Apple is great"),
+    ("USER Banana is tasty"),
+    ("Orange is healthy")
+  )
+
+  // Create DataFrame
+  val df = data.toDF("A")
+
+  // DataFrame Transformation
+  val dfWithRegex = df.withColumn("C", regexp_extract(col("A"), "USER\\s+(\\w+)", 1))
+                      .withColumn("D", regexp_replace(col("A"), "USER\\s+\\w+\\s*", ""))
+
+  // Show result
+  dfWithRegex.show()
+
+  // Stop SparkSession
+  spark.stop()
+}
